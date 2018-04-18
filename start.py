@@ -76,12 +76,13 @@ def input_data(sheet, driver):
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
+                        label = driver.find_element_by_xpath('//form[@id="{}"]//*[@for="{}"]'.format(form_name, 'id_' + name))
                         if value is True:
                             if not element.is_selected():
-                                element.click()
+                                label.click()
                         elif value is False:
                             if element.is_selected():
-                                element.click()
+                                label.click()
                     else:
                         element.send_keys(value)
                 elif element.tag_name == 'select':
@@ -90,6 +91,8 @@ def input_data(sheet, driver):
                         select_option_id = 'select-options-{}'.format(data_select_id)
                         # ドロップダウンリストを展開する
                         driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        time.sleep(1)
                         # 指定項目を選択する。
                         xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
                         list_element = driver.find_element_by_xpath(xpath)
