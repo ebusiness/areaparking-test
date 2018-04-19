@@ -1,6 +1,7 @@
 import os
 import openpyxl as px
 import time
+import MySQLdb
 
 from urllib.parse import urljoin
 from selenium import webdriver
@@ -13,6 +14,9 @@ EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
 HOST_NAME = 'http://127.0.0.1:8000'
 POS_TEST_CASE_START_ROW = 5
 POS_INPUT_START_ROW = 3
+DB_USER = 'root'
+DB_PWD = 'root'
+DB_HOST = 'localhost'
 
 
 def main():
@@ -47,15 +51,12 @@ def test_xlsx_file(path, driver):
     sheet_case = book['テストケース']
     for i in range(POS_TEST_CASE_START_ROW, sheet_case.max_row + 1):
         case_no = sheet_case['B{}'.format(i)].value
-        input1 = sheet_case['C{}'.format(i)].value
-        input2 = sheet_case['D{}'.format(i)].value
-        input3 = sheet_case['E{}'.format(i)].value
-        if input1:
-            input_data(book[input1], driver)
-        if input2:
-            input_data(book[input2], driver)
-        if input3:
-            input_data(book[input3], driver)
+        input = sheet_case['C{}'.format(i)].value
+        expect = sheet_case['D{}'.format(i)].value
+        if input:
+            input_data(book[input], driver)
+        if expect:
+            expect_data(book[expect], driver, case_no)
 
 
 def input_data(sheet, driver):
@@ -103,6 +104,34 @@ def input_data(sheet, driver):
         elif sheet['A{}'.format(i)].value == "CLICK":
             xpath = sheet['B{}'.format(i)].value
             driver.find_element_by_xpath(xpath).click()
+
+
+def expect_data(sheet, driver, case_no):
+    for i in range(1, sheet.max_row + 1):
+        table_name = sheet['A{}'.format(i)].value
+        sql = sheet['B{}'.format(i + 1)].value
+        if table_name and sql:
+            results = select_data(sql)
+            print(results[0])
+
+
+def select_data(sql):
+    con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db='areaparking', host=DB_HOST, charset='utf8')
+    cursor = con.cursor()
+    results = []
+    try:
+        sql = sql.rstrip().rstrip(';') + " limit 100;"
+        cursor.execute(sql)
+        print('SELECT:', sql)
+        for row in cursor:
+            results.append(row)
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        con.close()
+    return results
+
 
 
 if __name__ == '__main__':
