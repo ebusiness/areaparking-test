@@ -4,23 +4,43 @@ import time
 import MySQLdb
 
 from urllib.parse import urljoin
+
+from openpyxl.styles import PatternFill
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
 
+# os = 'windows'
+OS = 'linux'
 
 ROOT_PATH = os.getcwd()
-EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
-HOST_NAME = 'http://127.0.0.1:8000'
-POS_TEST_CASE_START_ROW = 5
-POS_INPUT_START_ROW = 3
-DB_USER = 'root'
-DB_PWD = 'root'
-DB_HOST = 'localhost'
+if OS == 'linux':
+    HOST_NAME = 'http://111.89.163.244:12345/'
+    POS_TEST_CASE_START_ROW = 5
+    POS_INPUT_START_ROW = 3
+    DB_USER = 'root'
+    DB_PWD = 'root'
+    DB_HOST = '192.168.11.5'
+else:
+    EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
+    HOST_NAME = 'http://127.0.0.1:8000'
+    POS_TEST_CASE_START_ROW = 5
+    POS_INPUT_START_ROW = 3
+    DB_USER = 'root'
+    DB_PWD = 'root'
+    DB_HOST = 'localhost'
 
 
 def main():
-    driver = webdriver.Chrome(os.path.join(ROOT_PATH, 'chromedriver.exe'))
+    if OS == 'linux':
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('no-sandbox')
+        options.add_argument('disable-gpu')
+        driver = webdriver.Chrome(options=options)
+    else:
+        driver = webdriver.Chrome(os.path.join(ROOT_PATH, 'chromedriver.exe'))
+
     driver.maximize_window()
     driver.get(HOST_NAME)
     try:
@@ -57,6 +77,8 @@ def test_xlsx_file(path, driver):
             input_data(book[input], driver)
         if expect:
             expect_data(book[expect], driver, case_no)
+    book.save(path)
+    book.close()
 
 
 def input_data(sheet, driver):
@@ -109,10 +131,34 @@ def input_data(sheet, driver):
 def expect_data(sheet, driver, case_no):
     for i in range(1, sheet.max_row + 1):
         table_name = sheet['A{}'.format(i)].value
+        data_count = sheet['B{}'.format(i)].value
         sql = sheet['B{}'.format(i + 1)].value
-        if table_name and sql:
+        if table_name and data_count and sql:
             results = select_data(sql)
-            print(results[0])
+            for j in range(0, len(results)):
+                row = j + i + data_count + 4
+                result_line = results[j]
+                for k in range(0, len(result_line)):
+                    col = k + 2
+                    value = '{}'.format(result_line[k])
+                    expect_value = sheet.cell(column=col, row=(i + 3 + j)).value
+                    if not expect_value:
+                        expect_value = 'None'
+                    cell = sheet.cell(
+                        row=row,
+                        column=col,
+                        value=value
+                    )
+                    if expect_value == value:
+                        cell.fill = PatternFill(
+                            patternType='solid',
+                            fgColor='8BC34A',
+                        )
+                    else:
+                        cell.fill = PatternFill(
+                            patternType='solid',
+                            fgColor='F44336',
+                        )
 
 
 def select_data(sql):
@@ -133,7 +179,6 @@ def select_data(sql):
     return results
 
 
-
 if __name__ == '__main__':
     driver = main()
-    # driver.quit()
+    driver.close()
