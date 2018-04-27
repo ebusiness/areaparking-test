@@ -18,6 +18,8 @@ from selenium.webdriver.support.ui import Select
 
 ROOT_PATH = os.getcwd()
 EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
+if not os.path.exists(EVIDENCE_ROOT_PATH):
+    os.mkdir(EVIDENCE_ROOT_PATH)
 DB_NAME = 'test_areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
@@ -106,7 +108,6 @@ def test_xlsx_file(path, driver):
             else:
                 sheet_case['H{}'.format(i)].value = "×"
                 sheet_case['H{}'.format(i)].fill = RED_FILL
-
 
     book.save(path)
     book.close()
@@ -229,7 +230,9 @@ def expect_data(sheet, driver, case_no, result_sheet):
             table_name = sheet['B{}'.format(i)].value
             sql = sheet['B{}'.format(i + 1)].value
             end_row = get_expect_table_end_row(sheet, i)
-            is_ok = expect_table(sheet, table_name, sql, i, end_row, result_sheet)
+            temp_flg = expect_table(sheet, table_name, sql, i, end_row, result_sheet)
+            if temp_flg is False:
+                is_ok = False
     return is_ok
 
 
