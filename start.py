@@ -15,9 +15,12 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
 
+import utils
+
 
 ROOT_PATH = os.getcwd()
 EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
+SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
 DB_NAME = 'test_areaparking'
@@ -97,7 +100,7 @@ def test_xlsx_file(path, driver):
         if input_db_sheet_name:
             input_tables(book[input_db_sheet_name])
         if input_form_sheet_name:
-            input_data(book[input_form_sheet_name], driver)
+            input_data(book[input_form_sheet_name], driver, os.path.dirname(path))
         if expect_sheet_name:
             result_sheet = book.create_sheet(title=result_sheet_name)
             result_sheet.sheet_view.zoomScale = 85
@@ -137,16 +140,17 @@ def set_evidence_folder(test_file_path):
     return out_file_name
 
 
-def input_data(sheet, driver):
+def input_data(sheet, driver, output_path):
     url = sheet['B1'].value
     if not url:
         return False
     driver.get(urljoin(HOST_NAME, url))
     form_name = None
     for i in range(POS_INPUT_START_ROW, sheet.max_row + 1):
-        if sheet['A{}'.format(i)].value == "FORM ID":
+        expect_kbn = sheet['A{}'.format(i)].value
+        if expect_kbn == "FORM ID":
             form_name = sheet['B{}'.format(i)].value
-        elif sheet['A{}'.format(i)].value == "FIELD":
+        elif expect_kbn == "FIELD":
             name = sheet['B{}'.format(i)].value
             value = sheet['C{}'.format(i)].value
 
@@ -184,9 +188,21 @@ def input_data(sheet, driver):
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
-        elif sheet['A{}'.format(i)].value == "CLICK":
+        elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
             driver.find_element_by_xpath(xpath).click()
+        elif expect_kbn == "SHOT":
+            # ハードコピーを取る
+            filename = sheet['B{}'.format(i)].value
+            if not filename:
+                filename = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
+            shot_dir = os.path.join(os.path.join(output_path, SCREEN_SHOT_NAME))
+            if not os.path.exists(shot_dir):
+                os.mkdir(shot_dir)
+                time.sleep(1)
+            index = '%04d' % len([name for name in os.listdir(shot_dir) if name.endswith('.png')])
+            shot_path = os.path.join(shot_dir, "{}_{}.png".format(index, filename))
+            utils.fullpage_screenshot(driver, shot_path)
 
 
 def input_tables(sheet):
