@@ -14,6 +14,7 @@ from openpyxl.styles import PatternFill, colors
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 
 import utils
 
@@ -69,7 +70,7 @@ def main():
         driver.close()
     except Exception as ex:
         print(ex)
-        driver.close()
+        # driver.close()
         raise ex
 
 
@@ -148,7 +149,13 @@ def input_data(sheet, driver, output_path):
     form_name = None
     for i in range(POS_INPUT_START_ROW, sheet.max_row + 1):
         expect_kbn = sheet['A{}'.format(i)].value
-        if expect_kbn == "FORM ID":
+        if expect_kbn == "URL:":
+            url = sheet['B{}'.format(i)].value
+            if not url:
+                return False
+            driver.get(urljoin(HOST_NAME, url))
+            form_name = None
+        elif expect_kbn == "FORM ID":
             form_name = sheet['B{}'.format(i)].value
         elif expect_kbn == "FIELD":
             name = sheet['B{}'.format(i)].value
@@ -156,8 +163,10 @@ def input_data(sheet, driver, output_path):
 
             if form_name and name and value:
                 element = driver.find_element_by_xpath('//form[@id="{}"]//*[@name="{}"]'.format(form_name, name))
+                print(element)
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
+                    default_value = element.get_attribute('value')
                     if input_type == "checkbox":
                         label = driver.find_element_by_xpath('//form[@id="{}"]//*[@for="{}"]'.format(
                             form_name, 'id_' + name)
@@ -169,6 +178,8 @@ def input_data(sheet, driver, output_path):
                             if element.is_selected():
                                 label.click()
                     else:
+                        if default_value != '':
+                            element.send_keys((Keys.CONTROL , 'a'))
                         element.send_keys(value)
                 elif element.tag_name == 'select':
                     data_select_id = element.get_attribute('data-select-id')
@@ -188,6 +199,9 @@ def input_data(sheet, driver, output_path):
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
+                elif element.tag_name == 'textarea':
+                    element.send_keys((Keys.CONTROL, 'a'))
+                    element.send_keys(value)
         elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
             driver.find_element_by_xpath(xpath).click()
@@ -290,14 +304,14 @@ def expect_table(sheet, table_name, sql, start_row, end_row, result_sheet):
         result_start_row = expect_end_row + 1
         copy_and_paste_ranges(sheet, result_sheet, start_row, end_row)
         results = select_data(sql)
-        # テーブルのタイトル行をコピーする
+        # テーブルのタイトル行をコピーする 抄table的标题行
         copy_and_paste_ranges(sheet, result_sheet, start_row + 2, start_row + 2, with_data=True)
         if len(results) == 0:
             result_sheet.cell(row=result_start_row + 2, column=2).value = "0件"
         else:
-            # テーブルのデータ行のフォーマットをコピーする。
+            # テーブルのデータ行のフォーマットをコピーする。 copy表的data行的格式
             copy_and_paste_ranges(sheet, result_sheet, start_row + 3, start_row + 3 + len(results) - 1, skip=1, with_data=False)
-            # 実行データを書き込む
+            # 実行データを書き込む  写入运行的data
             for i, data in enumerate(results):
                 for c, val in enumerate(data):
                     if isinstance(val, bytes):
@@ -314,9 +328,9 @@ def expect_table(sheet, table_name, sql, start_row, end_row, result_sheet):
             for c in range(column_count):
                 expect_cell = result_sheet.cell(row=expect_start_row + i, column=c + 2)
                 result_cell = result_sheet.cell(row=result_start_row + 2 + i, column=c + 2)
-                if expect_cell.value == "9999-12-31 23:59:59":
+                if expect_cell.value == "9999-12-31 23:59:59" or expect_cell.value == "9999999":
                     result_cell.fill = GREEN_FILL
-                elif expect_cell.value != result_cell.value:
+                elif str(expect_cell.value) != str(result_cell.value):
                     result_cell.fill = RED_FILL
                     is_ok = False
     else:
@@ -327,7 +341,7 @@ def expect_table(sheet, table_name, sql, start_row, end_row, result_sheet):
 
 def copy_and_paste_ranges(sheet, result_sheet, start_row, end_row, skip=2, with_data=True):
     dst_star_row = result_sheet.max_row + skip
-    for c in range(1, sheet.max_column):
+    for c in range(1, sheet.max_column + 1):
         for i, r in enumerate(range(start_row, end_row + 1)):
             src_cell = sheet.cell(row=r, column=c)
             dst_cell = result_sheet.cell(row=dst_star_row + i, column=c)
