@@ -70,7 +70,7 @@ def main():
         driver.close()
     except Exception as ex:
         print(ex)
-        # driver.close()
+        driver.close()
         raise ex
 
 
@@ -176,6 +176,7 @@ def input_data(sheet, driver, output_path):
                         elif value is False:
                             if element.is_selected():
                                 label.click()
+                        time.sleep(1)
                     else:
                         if default_value != '':
                             element.send_keys((Keys.CONTROL , 'a'))
@@ -186,6 +187,7 @@ def input_data(sheet, driver, output_path):
                         select_option_id = 'select-options-{}'.format(data_select_id)
                         # ドロップダウンリストを展開する
                         driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        time.sleep(1)
                         try:
                             driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
                         except:
@@ -209,9 +211,104 @@ def input_data(sheet, driver, output_path):
                         label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
                         print('label::  ' , label)
                         label.click()
-
+                        time.sleep(1)
                     else:
                         element.send_keys((Keys.CONTROL, 'a'))
+                        element.send_keys(value)
+                elif element.tag_name == 'select':
+                    data_select_id = element.get_attribute('data-select-id')
+                    if data_select_id:
+                        select_option_id = 'select-options-{}'.format(data_select_id)
+                        # ドロップダウンリストを展開する
+                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        time.sleep(1)
+                        try:
+                            driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                            time.sleep(1)
+                        except:
+                            pass
+                        time.sleep(1)
+                        # 指定項目を選択する。
+                        xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
+                        list_element = driver.find_element_by_xpath(xpath)
+                        list_element.click()
+                        time.sleep(1)
+                    else:
+                        select_element = Select(element)
+                        select_element.select_by_visible_text(value)
+                elif element.tag_name == 'textarea':
+                    element.send_keys((Keys.CONTROL, 'a'))
+                    element.send_keys(value)
+            elif name and value:
+                element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
+                if element.tag_name == 'input':
+                    input_type = element.get_attribute('type')
+                    if input_type == "checkbox":
+                        label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
+                        print('label::  ', label)
+                        label.click()
+                        time.sleep(1)
+                    else:
+                        element.send_keys((Keys.CONTROL, 'a'))
+                        element.send_keys(value)
+                elif element.tag_name == 'select':
+                    data_select_id = element.get_attribute('data-select-id')
+                    if data_select_id:
+                        select_option_id = 'select-options-{}'.format(data_select_id)
+                        # ドロップダウンリストを展開する
+                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        time.sleep(1)
+                        try:
+                            driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        except:
+                            pass
+                        time.sleep(1)
+                        # 指定項目を選択する。
+                        xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
+                        list_element = driver.find_element_by_xpath(xpath)
+                        list_element.click()
+                        time.sleep(1)
+                    else:
+                        select_element = Select(element)
+                        select_element.select_by_visible_text(value)
+        elif expect_kbn == "CLICK":
+            xpath = sheet['B{}'.format(i)].value
+            driver.find_element_by_xpath(xpath).click()
+            time.sleep(1)
+        elif expect_kbn == "SHOT":
+            # ハードコピーを取る
+            filename = sheet['B{}'.format(i)].value
+            if not filename:
+                filename = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
+            shot_dir = os.path.join(os.path.join(output_path, SCREEN_SHOT_NAME))
+            if not os.path.exists(shot_dir):
+                os.mkdir(shot_dir)
+                time.sleep(1)
+            index = '%04d' % len([name for name in os.listdir(shot_dir) if name.endswith('.png')])
+            shot_path = os.path.join(shot_dir, "{}_{}.png".format(index, filename))
+            utils.fullpage_screenshot(driver, shot_path)
+        elif sheet['A{}'.format(i)].value == "SEARCH":
+            search_class = sheet['B{}'.format(i)].value
+        elif sheet['A{}'.format(i)].value == "WORD":
+            id = sheet['B{}'.format(i)].value
+            value = sheet['C{}'.format(i)].value
+
+            if search_class and id and value:
+                element = driver.find_element_by_xpath('//div[@class="{}"]//*[@id="{}"]'.format(search_class, id))
+                if element.tag_name == 'input':
+                    input_type = element.get_attribute('type')
+                    if input_type == "checkbox":
+                        label = driver.find_element_by_xpath('//form[@id="{}"]//*[@for="{}"]'.format(
+                            form_name, 'id_' + name)
+                        )
+                        if value is True:
+                            if not element.is_selected():
+                                label.click()
+                        elif value is False:
+                            if element.is_selected():
+                                label.click()
+                    else:
+                        element.clear()
                         element.send_keys(value)
                 elif element.tag_name == 'select':
                     data_select_id = element.get_attribute('data-select-id')
@@ -228,24 +325,11 @@ def input_data(sheet, driver, output_path):
                         xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
                         list_element = driver.find_element_by_xpath(xpath)
                         list_element.click()
+                        time.sleep(1)
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
-        elif expect_kbn == "CLICK":
-            xpath = sheet['B{}'.format(i)].value
-            driver.find_element_by_xpath(xpath).click()
-        elif expect_kbn == "SHOT":
-            # ハードコピーを取る
-            filename = sheet['B{}'.format(i)].value
-            if not filename:
-                filename = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
-            shot_dir = os.path.join(os.path.join(output_path, SCREEN_SHOT_NAME))
-            if not os.path.exists(shot_dir):
-                os.mkdir(shot_dir)
-                time.sleep(1)
-            index = '%04d' % len([name for name in os.listdir(shot_dir) if name.endswith('.png')])
-            shot_path = os.path.join(shot_dir, "{}_{}.png".format(index, filename))
-            utils.fullpage_screenshot(driver, shot_path)
+
 
 
 def input_tables(sheet):
