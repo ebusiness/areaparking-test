@@ -188,6 +188,7 @@ def input_data(sheet, driver, output_path):
                         select_option_id = 'select-options-{}'.format(data_select_id)
                         # ドロップダウンリストを展開する
                         driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        time.sleep(1)
                         try:
                             driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
                         except:
@@ -220,6 +221,7 @@ def input_data(sheet, driver, output_path):
                         select_option_id = 'select-options-{}'.format(data_select_id)
                         # ドロップダウンリストを展開する
                         driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        time.sleep(1)
                         try:
                             driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
                         except:
