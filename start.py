@@ -176,7 +176,8 @@ def input_data(sheet, driver, output_path):
                         elif value is False:
                             if element.is_selected():
                                 label.click()
-                        time.sleep(1)
+                    elif input_type == 'file':
+                        element.send_keys(ROOT_PATH + value)
                     else:
                         if default_value != '':
                             element.send_keys((Keys.CONTROL , 'a'))
@@ -209,9 +210,8 @@ def input_data(sheet, driver, output_path):
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
                         label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
-                        print('label::  ' , label)
+                        print('label::  ', label)
                         label.click()
-                        time.sleep(1)
                     else:
                         element.send_keys((Keys.CONTROL, 'a'))
                         element.send_keys(value)
@@ -224,7 +224,6 @@ def input_data(sheet, driver, output_path):
                         time.sleep(1)
                         try:
                             driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                            time.sleep(1)
                         except:
                             pass
                         time.sleep(1)
@@ -232,45 +231,12 @@ def input_data(sheet, driver, output_path):
                         xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
                         list_element = driver.find_element_by_xpath(xpath)
                         list_element.click()
-                        time.sleep(1)
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
                 elif element.tag_name == 'textarea':
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
-            elif name and value:
-                element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
-                if element.tag_name == 'input':
-                    input_type = element.get_attribute('type')
-                    if input_type == "checkbox":
-                        label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
-                        print('label::  ', label)
-                        label.click()
-                        time.sleep(1)
-                    else:
-                        element.send_keys((Keys.CONTROL, 'a'))
-                        element.send_keys(value)
-                elif element.tag_name == 'select':
-                    data_select_id = element.get_attribute('data-select-id')
-                    if data_select_id:
-                        select_option_id = 'select-options-{}'.format(data_select_id)
-                        # ドロップダウンリストを展開する
-                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                        time.sleep(1)
-                        try:
-                            driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                        except:
-                            pass
-                        time.sleep(1)
-                        # 指定項目を選択する。
-                        xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
-                        list_element = driver.find_element_by_xpath(xpath)
-                        list_element.click()
-                        time.sleep(1)
-                    else:
-                        select_element = Select(element)
-                        select_element.select_by_visible_text(value)
         elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
             driver.find_element_by_xpath(xpath).click()
