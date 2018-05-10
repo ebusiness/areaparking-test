@@ -25,6 +25,7 @@ SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
 DB_NAME = 'test_areaparking'
+# DB_NAME = 'areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
     POS_TEST_CASE_START_ROW = 5
@@ -295,6 +296,10 @@ def input_data(sheet, driver, output_path):
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
+        elif expect_kbn == "ALERT":
+            alt = driver.switch_to_alert()
+            alt.accept()
+            time.sleep(1)
 
 
 
@@ -321,7 +326,7 @@ def input_tables(sheet):
                         if val == 'NULL':
                             val = None
                         vals.append(val)
-                    # execute_sql(sql, vals)v
+                    # execute_sql(sql, vals)
                     cursor.execute(sql, vals)
         con.commit()
     except Exception as e:
