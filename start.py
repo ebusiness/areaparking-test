@@ -70,7 +70,7 @@ def main():
         driver.close()
     except Exception as ex:
         print(ex)
-        driver.close()
+        # driver.close()
         raise ex
 
 
@@ -157,6 +157,8 @@ def input_data(sheet, driver, output_path):
             form_name = None
         elif expect_kbn == "FORM ID":
             form_name = sheet['B{}'.format(i)].value
+        elif expect_kbn == "SEARCH":
+            search_class = sheet['B{}'.format(i)].value
         elif expect_kbn == "FIELD":
             name = sheet['B{}'.format(i)].value
             value = sheet['C{}'.format(i)].value
@@ -204,6 +206,8 @@ def input_data(sheet, driver, output_path):
                 elif element.tag_name == 'textarea':
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
+                elif element.tag_name == 'number':
+                    element.send_keys(value)
             elif name and value:
                 element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                 if element.tag_name == 'input':
@@ -237,10 +241,15 @@ def input_data(sheet, driver, output_path):
                 elif element.tag_name == 'textarea':
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
+                elif element.tag_name == 'number':
+                    element.send_keys(value)
         elif expect_kbn == "CLICK":
-            xpath = sheet['B{}'.format(i)].value
-            driver.find_element_by_xpath(xpath).click()
-            time.sleep(1)
+            try:
+                xpath = sheet['B{}'.format(i)].value
+                driver.find_element_by_xpath(xpath).click()
+                time.sleep(1)
+            except:
+                pass
         elif expect_kbn == "SHOT":
             # ハードコピーを取る
             filename = sheet['B{}'.format(i)].value
@@ -253,9 +262,7 @@ def input_data(sheet, driver, output_path):
             index = '%04d' % len([name for name in os.listdir(shot_dir) if name.endswith('.png')])
             shot_path = os.path.join(shot_dir, "{}_{}.png".format(index, filename))
             utils.fullpage_screenshot(driver, shot_path)
-        elif sheet['A{}'.format(i)].value == "SEARCH":
-            search_class = sheet['B{}'.format(i)].value
-        elif sheet['A{}'.format(i)].value == "WORD":
+        elif expect_kbn == "WORD":
             id = sheet['B{}'.format(i)].value
             value = sheet['C{}'.format(i)].value
 
@@ -295,7 +302,13 @@ def input_data(sheet, driver, output_path):
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
-
+        elif expect_kbn == "ALERT":
+            try:
+                alt = driver.switch_to_alert()
+                alt.accept()
+                time.sleep(1)
+            except:
+                pass
 
 
 def input_tables(sheet):
