@@ -24,8 +24,8 @@ EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
 SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
-DB_NAME = 'test_areaparking'
-# DB_NAME = 'areaparking'
+# DB_NAME = 'test_areaparking'
+DB_NAME = 'areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
     POS_TEST_CASE_START_ROW = 5
@@ -71,7 +71,7 @@ def main():
         driver.close()
     except Exception as ex:
         print(ex)
-        driver.close()
+        # driver.close()
         raise ex
 
 
@@ -151,6 +151,7 @@ def input_data(sheet, driver, output_path):
     for i in range(POS_INPUT_START_ROW, sheet.max_row + 1):
         expect_kbn = sheet['A{}'.format(i)].value
         if expect_kbn == "URL:":
+            driver.refresh()
             url = sheet['B{}'.format(i)].value
             if not url:
                 return False
@@ -208,7 +209,6 @@ def input_data(sheet, driver, output_path):
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
                         label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
-                        print('label::  ' , label)
                         label.click()
                         time.sleep(1)
                     else:
