@@ -204,6 +204,19 @@ def input_data(sheet, driver, output_path):
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
             elif name and value:
+                while 1:
+                    start = time.clock()
+                    try:
+                        driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
+                        time.sleep(1)
+                        print('已定位到元素')
+                        end = time.clock()
+                        break
+                    except:
+                        print("还未定位到元素!")
+                        print('//*[@id="{}"]'.format(name))
+                print('定位耗费时间：' + str(end - start))
+
                 element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
@@ -240,8 +253,22 @@ def input_data(sheet, driver, output_path):
                     element.send_keys(value)
         elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
-            driver.find_element_by_xpath(xpath).click()
-            time.sleep(1)
+            while 1:
+                start = time.clock()
+                try:
+                    driver.find_element_by_xpath(xpath).click()
+                    time.sleep(1)
+                    print('已定位到元素')
+                    end = time.clock()
+                    break
+                except:
+                    print("还未定位到元素!")
+                    print(xpath)
+
+            print('定位耗费时间：' + str(end - start))
+
+            # driver.find_element_by_xpath(xpath).click()
+            # time.sleep(1)
         elif expect_kbn == "SHOT":
             # ハードコピーを取る
             filename = sheet['B{}'.format(i)].value
