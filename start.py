@@ -204,25 +204,17 @@ def input_data(sheet, driver, output_path):
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
             elif name and value:
-                while 1:
-                    start = time.clock()
-                    try:
-                        driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
-                        time.sleep(1)
-                        print('已定位到元素')
-                        end = time.clock()
-                        break
-                    except:
-                        print("还未定位到元素!")
-                        print('//*[@id="{}"]'.format(name))
-                print('定位耗费时间：' + str(end - start))
-
                 element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
                         label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
-                        label.click()
+                        if value is True:
+                            if not element.is_selected():
+                                label.click()
+                        elif value is False:
+                            if element.is_selected():
+                                label.click()
                         time.sleep(1)
                     else:
                         element.send_keys((Keys.CONTROL, 'a'))
@@ -232,18 +224,25 @@ def input_data(sheet, driver, output_path):
                     if data_select_id:
                         select_option_id = 'select-options-{}'.format(data_select_id)
                         # ドロップダウンリストを展開する
-                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                        time.sleep(1)
                         try:
                             driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                            time.sleep(1)
                         except:
                             pass
                         time.sleep(1)
                         # 指定項目を選択する。
                         xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
-                        list_element = driver.find_element_by_xpath(xpath)
-                        list_element.click()
+                        while 1:
+                            try:
+                                driver.find_element_by_xpath(xpath).click()
+                                time.sleep(1)
+                                # print('已定位到元素')
+                                # print(xpath)
+                                break
+                            except:
+                                print("还未定位到元素!")
+                                print(xpath)
+                        # list_element = driver.find_element_by_xpath(xpath)
+                        # list_element.click()
                         time.sleep(1)
                     else:
                         select_element = Select(element)
@@ -254,18 +253,16 @@ def input_data(sheet, driver, output_path):
         elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
             while 1:
-                start = time.clock()
                 try:
                     driver.find_element_by_xpath(xpath).click()
                     time.sleep(1)
-                    print('已定位到元素')
-                    end = time.clock()
+                    # print('已定位到元素')
+                    # print(xpath)
                     break
                 except:
                     print("还未定位到元素!")
                     print(xpath)
 
-            print('定位耗费时间：' + str(end - start))
 
             # driver.find_element_by_xpath(xpath).click()
             # time.sleep(1)
@@ -287,42 +284,42 @@ def input_data(sheet, driver, output_path):
             id = sheet['B{}'.format(i)].value
             value = sheet['C{}'.format(i)].value
 
-            if search_class and id and value:
-                element = driver.find_element_by_xpath('//div[@class="{}"]//*[@id="{}"]'.format(search_class, id))
-                if element.tag_name == 'input':
-                    input_type = element.get_attribute('type')
-                    if input_type == "checkbox":
-                        label = driver.find_element_by_xpath('//form[@id="{}"]//*[@for="{}"]'.format(
-                            form_name, 'id_' + name)
-                        )
-                        if value is True:
-                            if not element.is_selected():
-                                label.click()
-                        elif value is False:
-                            if element.is_selected():
-                                label.click()
-                    else:
-                        element.clear()
-                        element.send_keys(value)
-                elif element.tag_name == 'select':
-                    data_select_id = element.get_attribute('data-select-id')
-                    if data_select_id:
-                        select_option_id = 'select-options-{}'.format(data_select_id)
-                        # ドロップダウンリストを展開する
-                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                        try:
-                            driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                        except:
-                            pass
-                        time.sleep(1)
-                        # 指定項目を選択する。
-                        xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
-                        list_element = driver.find_element_by_xpath(xpath)
-                        list_element.click()
-                        time.sleep(1)
-                    else:
-                        select_element = Select(element)
-                        select_element.select_by_visible_text(value)
+            # if search_class and id and value:
+            #     element = driver.find_element_by_xpath('//div[@class="{}"]//*[@id="{}"]'.format(search_class, id))
+            #     if element.tag_name == 'input':
+            #         input_type = element.get_attribute('type')
+            #         if input_type == "checkbox":
+            #             label = driver.find_element_by_xpath('//form[@id="{}"]//*[@for="{}"]'.format(
+            #                 form_name, 'id_' + name)
+            #             )
+            #             if value is True:
+            #                 if not element.is_selected():
+            #                     label.click()
+            #             elif value is False:
+            #                 if element.is_selected():
+            #                     label.click()
+            #         else:
+            #             element.clear()
+            #             element.send_keys(value)
+            #     elif element.tag_name == 'select':
+            #         data_select_id = element.get_attribute('data-select-id')
+            #         if data_select_id:
+            #             select_option_id = 'select-options-{}'.format(data_select_id)
+            #             # ドロップダウンリストを展開する
+            #             driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+            #             try:
+            #                 driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+            #             except:
+            #                 pass
+            #             time.sleep(1)
+            #             # 指定項目を選択する。
+            #             xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
+            #             list_element = driver.find_element_by_xpath(xpath)
+            #             list_element.click()
+            #             time.sleep(1)
+            #         else:
+            #             select_element = Select(element)
+            #             select_element.select_by_visible_text(value)
         elif expect_kbn == "ALERT":
             alt = driver.switch_to_alert()
             alt.accept()
