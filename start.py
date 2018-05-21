@@ -24,7 +24,7 @@ EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
 SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
-DB_NAME = 'test_areaparking'
+DB_NAME = 'areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
     POS_TEST_CASE_START_ROW = 5
@@ -150,6 +150,7 @@ def input_data(sheet, driver, output_path):
     for i in range(POS_INPUT_START_ROW, sheet.max_row + 1):
         expect_kbn = sheet['A{}'.format(i)].value
         if expect_kbn == "URL:":
+            driver.refresh()
             url = sheet['B{}'.format(i)].value
             if not url:
                 return False
@@ -165,7 +166,6 @@ def input_data(sheet, driver, output_path):
                 element = driver.find_element_by_xpath('//form[@id="{}"]//*[@name="{}"]'.format(form_name, name))
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
-                    default_value = element.get_attribute('value')
                     if input_type == "checkbox":
                         label = driver.find_element_by_xpath('//form[@id="{}"]//*[@for="{}"]'.format(
                             form_name, 'id_' + name)
@@ -178,8 +178,7 @@ def input_data(sheet, driver, output_path):
                                 label.click()
                         time.sleep(1)
                     else:
-                        if default_value != '':
-                            element.send_keys((Keys.CONTROL , 'a'))
+                        element.send_keys((Keys.CONTROL , 'a'))
                         element.send_keys(value)
                 elif element.tag_name == 'select':
                     data_select_id = element.get_attribute('data-select-id')
@@ -204,13 +203,24 @@ def input_data(sheet, driver, output_path):
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
             elif name and value:
-                element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
+                while 1:
+                    try:
+                        element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
+                        time.sleep(1)
+                        break
+                    except:
+                        print("还未定位到元素!")
+                        print(xpath)
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
                         label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
-                        print('label::  ' , label)
-                        label.click()
+                        if value is True:
+                            if not element.is_selected():
+                                label.click()
+                        elif value is False:
+                            if element.is_selected():
+                                label.click()
                         time.sleep(1)
                     else:
                         element.send_keys((Keys.CONTROL, 'a'))
@@ -226,55 +236,39 @@ def input_data(sheet, driver, output_path):
                             driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
                             time.sleep(1)
                         except:
-                            pass
-                        time.sleep(1)
+                                pass
                         # 指定項目を選択する。
                         xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
-                        list_element = driver.find_element_by_xpath(xpath)
-                        list_element.click()
-                        time.sleep(1)
+                        while 1:
+                            try:
+                                driver.find_element_by_xpath(xpath).click()
+                                time.sleep(1)
+                                # print('已定位到元素')
+                                # print(xpath)
+                                break
+                            except:
+                                print("还未定位到元素!")
+                                print(xpath)
+                        # list_element = driver.find_element_by_xpath(xpath)
+                        # list_element.click()
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
                 elif element.tag_name == 'textarea':
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
-            elif name and value:
-                element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
-                if element.tag_name == 'input':
-                    input_type = element.get_attribute('type')
-                    if input_type == "checkbox":
-                        label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
-                        print('label::  ', label)
-                        label.click()
-                        time.sleep(1)
-                    else:
-                        element.send_keys((Keys.CONTROL, 'a'))
-                        element.send_keys(value)
-                elif element.tag_name == 'select':
-                    data_select_id = element.get_attribute('data-select-id')
-                    if data_select_id:
-                        select_option_id = 'select-options-{}'.format(data_select_id)
-                        # ドロップダウンリストを展開する
-                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                        time.sleep(1)
-                        try:
-                            driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
-                        except:
-                            pass
-                        time.sleep(1)
-                        # 指定項目を選択する。
-                        xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
-                        list_element = driver.find_element_by_xpath(xpath)
-                        list_element.click()
-                        time.sleep(1)
-                    else:
-                        select_element = Select(element)
-                        select_element.select_by_visible_text(value)
         elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
-            driver.find_element_by_xpath(xpath).click()
-            time.sleep(1)
+            while 1:
+                try:
+                    driver.find_element_by_xpath(xpath).click()
+                    time.sleep(1)
+                    # print('已定位到元素')
+                    # print(xpath)
+                    break
+                except:
+                    print("还未定位到元素!")
+                    print(xpath)
         elif expect_kbn == "SHOT":
             # ハードコピーを取る
             filename = sheet['B{}'.format(i)].value
@@ -329,29 +323,53 @@ def input_data(sheet, driver, output_path):
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
-
-
+        elif expect_kbn == "ALERT":
+            alt = driver.switch_to_alert()
+            alt.accept()
+            time.sleep(1)
+        elif expect_kbn == "HANDLE":
+            index = sheet['B{}'.format(i)].value
+            if index == 'close':
+                driver.close()
+            all = driver.window_handles
+            driver.switch_to_window(all[index])
+            time.sleep(1)
 
 def input_tables(sheet):
-    for i in range(1, sheet.max_row + 1):
-        expect_kbn = sheet['A{}'.format(i)].value
-        if expect_kbn == "SQL":
-            sql = sheet['B{}'.format(i)].value
-            cnt = execute_sql(sql, None)
-            print(sql, "{}件削除しました".format(cnt))
-        elif expect_kbn == 'TABLE':
-            table_name = sheet['B{}'.format(i)].value
-            sql, col_count = get_insert_sql(sheet, i + 2, table_name)
-            for r in range(i + 3, sheet.max_row + 1):
-                if sheet.cell(row=r, column=2).value is None:
-                    break
-                vals = []
-                for c in range(col_count):
-                    val = sheet.cell(row=r, column=c + 2).value
-                    if val == 'NULL':
-                        val = None
-                    vals.append(val)
-                execute_sql(sql, vals)
+    con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
+    cursor = con.cursor()
+    try:
+        for i in range(1, sheet.max_row + 1):
+            expect_kbn = sheet['A{}'.format(i)].value
+            if expect_kbn == "SQL":
+                sql = sheet['B{}'.format(i)].value
+                # cnt = execute_sql(sql, None)
+                cnt = cursor.execute(sql, None)
+                print(sql, "{}件削除しました".format(cnt))
+            elif expect_kbn == 'TABLE':
+                table_name = sheet['B{}'.format(i)].value
+                sql, col_count = get_insert_sql(sheet, i + 2, table_name)
+                for r in range(i + 3, sheet.max_row + 1):
+                    if sheet.cell(row=r, column=2).value is None:
+                        break
+                    vals = []
+                    for c in range(col_count):
+                        val = sheet.cell(row=r, column=c + 2).value
+                        if val == 'NULL':
+                            val = None
+                        vals.append(val)
+                    # execute_sql(sql, vals)
+                    cursor.execute(sql, vals)
+        con.commit()
+    except Exception as e:
+        print("ERROR: ", sql)
+        raise e
+
+    finally:
+        cursor.close()
+        con.close()
+
+
 
 
 def get_insert_sql(sheet, row_index, table_name):
@@ -441,7 +459,7 @@ def expect_table(sheet, table_name, sql, start_row, end_row, result_sheet):
             for c in range(column_count):
                 expect_cell = result_sheet.cell(row=expect_start_row + i, column=c + 2)
                 result_cell = result_sheet.cell(row=result_start_row + 2 + i, column=c + 2)
-                if expect_cell.value == "9999-12-31 23:59:59" or expect_cell.value == "9999999":
+                if expect_cell.value == "9999-12-31 23:59:59":
                     result_cell.fill = GREEN_FILL
                 elif str(expect_cell.value) != str(result_cell.value):
                     result_cell.fill = RED_FILL
@@ -492,19 +510,19 @@ def select_data(sql):
     return results
 
 
-def execute_sql(sql, params):
-    con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
-    cursor = con.cursor()
-    try:
-        cnt = cursor.execute(sql, params)
-        con.commit()
-    except Exception as e:
-        print("ERROR: ", sql)
-        raise e
-    finally:
-        cursor.close()
-        con.close()
-    return cnt
+# def execute_sql(sql, params):
+#     con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
+#     cursor = con.cursor()
+#     try:
+#         cnt = cursor.execute(sql, params)
+#         con.commit()
+#     except Exception as e:
+#         print("ERROR: ", sql)
+#         raise e
+#     finally:
+#         cursor.close()
+#         con.close()
+#     return cnt
 
 
 def set_openpyxl_styles(ws, cell_range, start_row, with_border=False):
