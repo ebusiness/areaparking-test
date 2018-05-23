@@ -331,9 +331,10 @@ def input_data(sheet, driver, output_path):
             index = sheet['B{}'.format(i)].value
             if index == 'close':
                 driver.close()
-            all = driver.window_handles
-            driver.switch_to_window(all[index])
-            time.sleep(1)
+            else:
+                all = driver.window_handles
+                driver.switch_to_window(all[index])
+                time.sleep(1)
 
 def input_tables(sheet):
     con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
