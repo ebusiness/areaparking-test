@@ -281,6 +281,7 @@ def input_data(sheet, driver, output_path):
                 time.sleep(1)
             index = '%04d' % len([name for name in os.listdir(shot_dir) if name.endswith('.png')])
             shot_path = os.path.join(shot_dir, "{}_{}.png".format(index, filename))
+            time.sleep(1)
             utils.fullpage_screenshot(driver, shot_path)
         elif sheet['A{}'.format(i)].value == "SEARCH":
             search_class = sheet['B{}'.format(i)].value
