@@ -340,21 +340,6 @@ def input_data(sheet, driver, output_path):
             index = sheet['B{}'.format(i)].value
             if index == 'close':
                 driver.close()
-<<<<<<< HEAD
-            all = driver.window_handles
-            driver.switch_to_window(all[index])
-            time.sleep(1)
-        elif expect_kbn == "HANDLE2":
-            all = driver.window_handles
-            index = sheet['B{}'.format(i)].value
-            if index > 1:
-                driver.switch_to_window(all[index])
-                driver.close()
-            if index == 1:
-                driver.switch_to_window(all[1])
-                # driver.switch_to_window(all[0])
-                # nowhandle = driver.current_window_handle
-=======
             else:
                 all = driver.window_handles
                 driver.switch_to_window(all[index])
@@ -372,7 +357,14 @@ def input_data(sheet, driver, output_path):
                     print("还未定位到元素!")
                     print(xpath)
             ActionChains(driver).key_up(Keys.CONTROL).perform()
->>>>>>> yiyang/master
+        elif expect_kbn == "HANDLE2":
+            all = driver.window_handles
+            index = sheet['B{}'.format(i)].value
+            if index > 1:
+                driver.switch_to_window(all[index])
+                driver.close()
+            if index == 1:
+                driver.switch_to_window(all[1])
 
 def input_tables(sheet):
     con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
