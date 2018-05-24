@@ -24,7 +24,8 @@ EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
 SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
-DB_NAME = 'areaparking'
+# DB_NAME = 'areaparking'
+DB_NAME = 'test_areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
     POS_TEST_CASE_START_ROW = 5
@@ -203,7 +204,8 @@ def input_data(sheet, driver, output_path):
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
             elif name and value:
-                while 1:
+                iii = 10
+                while iii:
                     try:
                         element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                         time.sleep(1)
@@ -211,6 +213,7 @@ def input_data(sheet, driver, output_path):
                     except:
                         print("还未定位到元素!")
                         print(xpath)
+                        iii -= 1
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
@@ -261,6 +264,10 @@ def input_data(sheet, driver, output_path):
             xpath = sheet['B{}'.format(i)].value
             while 1:
                 try:
+                    all = driver.window_handles
+                    print(all)
+                    nowhandle = driver.current_window_handle
+                    print(nowhandle)
                     driver.find_element_by_xpath(xpath).click()
                     time.sleep(1)
                     # print('已定位到元素')
@@ -334,6 +341,16 @@ def input_data(sheet, driver, output_path):
             all = driver.window_handles
             driver.switch_to_window(all[index])
             time.sleep(1)
+        elif expect_kbn == "HANDLE2":
+            all = driver.window_handles
+            index = sheet['B{}'.format(i)].value
+            if index > 1:
+                driver.switch_to_window(all[index])
+                driver.close()
+            if index == 1:
+                driver.switch_to_window(all[1])
+                # driver.switch_to_window(all[0])
+                # nowhandle = driver.current_window_handle
 
 def input_tables(sheet):
     con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
