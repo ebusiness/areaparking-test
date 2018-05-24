@@ -15,6 +15,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 import utils
 
@@ -68,10 +69,10 @@ def main():
         for path in collect_test_files():
             out_file = set_evidence_folder(path)
             test_xlsx_file(out_file, driver)
-        driver.close()
+        # driver.close()
     except Exception as ex:
         print(ex)
-        driver.close()
+        # driver.close()
         raise ex
 
 
@@ -287,6 +288,7 @@ def input_data(sheet, driver, output_path):
                 time.sleep(1)
             index = '%04d' % len([name for name in os.listdir(shot_dir) if name.endswith('.png')])
             shot_path = os.path.join(shot_dir, "{}_{}.png".format(index, filename))
+            time.sleep(1)
             utils.fullpage_screenshot(driver, shot_path)
         elif sheet['A{}'.format(i)].value == "SEARCH":
             search_class = sheet['B{}'.format(i)].value
@@ -338,6 +340,7 @@ def input_data(sheet, driver, output_path):
             index = sheet['B{}'.format(i)].value
             if index == 'close':
                 driver.close()
+<<<<<<< HEAD
             all = driver.window_handles
             driver.switch_to_window(all[index])
             time.sleep(1)
@@ -351,6 +354,25 @@ def input_data(sheet, driver, output_path):
                 driver.switch_to_window(all[1])
                 # driver.switch_to_window(all[0])
                 # nowhandle = driver.current_window_handle
+=======
+            else:
+                all = driver.window_handles
+                driver.switch_to_window(all[index])
+                time.sleep(1)
+        elif expect_kbn == "CTRL":
+            driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+            xpath = sheet['B{}'.format(i)].value
+            ActionChains(driver).key_down(Keys.CONTROL).perform()
+            while 1:
+                try:
+                    driver.find_element_by_xpath(xpath).click()
+                    time.sleep(1)
+                    break
+                except:
+                    print("还未定位到元素!")
+                    print(xpath)
+            ActionChains(driver).key_up(Keys.CONTROL).perform()
+>>>>>>> yiyang/master
 
 def input_tables(sheet):
     con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
