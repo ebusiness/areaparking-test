@@ -25,8 +25,7 @@ EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
 SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
-# DB_NAME = 'areaparking'
-DB_NAME = 'test_areaparking'
+DB_NAME = 'areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
     POS_TEST_CASE_START_ROW = 5
@@ -179,6 +178,8 @@ def input_data(sheet, driver, output_path):
                             if element.is_selected():
                                 label.click()
                         time.sleep(1)
+                    elif input_type == 'file':
+                        element.send_keys(ROOT_PATH + value)
                     else:
                         element.send_keys((Keys.CONTROL , 'a'))
                         element.send_keys(value)
@@ -226,6 +227,8 @@ def input_data(sheet, driver, output_path):
                             if element.is_selected():
                                 label.click()
                         time.sleep(1)
+                    elif input_type == 'file':
+                        element.send_keys(ROOT_PATH + value)
                     else:
                         element.send_keys((Keys.CONTROL, 'a'))
                         element.send_keys(value)
