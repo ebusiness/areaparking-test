@@ -179,7 +179,7 @@ def input_data(sheet, driver, output_path):
                                 label.click()
                         time.sleep(1)
                     else:
-                        element.send_keys((Keys.CONTROL , 'a'))
+                        element.send_keys((Keys.CONTROL, 'a'))
                         element.send_keys(value)
                 elif element.tag_name == 'select':
                     data_select_id = element.get_attribute('data-select-id')
@@ -204,14 +204,26 @@ def input_data(sheet, driver, output_path):
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
             elif name and value:
+                # while 1:
+                #     try:
+                #         element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
+                #         time.sleep(1)
+                #         break
+                #     except:
+                #         print("还未定位到元素!")
+                #         print(name)
                 while 1:
                     try:
                         element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                         time.sleep(1)
                         break
                     except:
-                        print("还未定位到元素!")
-                        print(xpath)
+                        element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
+                        name1 = element.get_attribute("name")
+                        print("name", name1)
+                        print("element", element)
+                        break
+
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
@@ -223,8 +235,10 @@ def input_data(sheet, driver, output_path):
                             if element.is_selected():
                                 label.click()
                         time.sleep(1)
+                    elif input_type == "file":
+                        element.send_keys(ROOT_PATH + value)
                     else:
-                        element.send_keys((Keys.CONTROL, 'a'))
+                        element.clear()
                         element.send_keys(value)
                 elif element.tag_name == 'select':
                     data_select_id = element.get_attribute('data-select-id')
@@ -244,19 +258,15 @@ def input_data(sheet, driver, output_path):
                             try:
                                 driver.find_element_by_xpath(xpath).click()
                                 time.sleep(1)
-                                # print('已定位到元素')
-                                # print(xpath)
                                 break
                             except:
                                 print("还未定位到元素!")
                                 print(xpath)
-                        # list_element = driver.find_element_by_xpath(xpath)
-                        # list_element.click()
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
                 elif element.tag_name == 'textarea':
-                    element.send_keys((Keys.CONTROL, 'a'))
+                    element.clear()
                     element.send_keys(value)
         elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
@@ -264,8 +274,6 @@ def input_data(sheet, driver, output_path):
                 try:
                     driver.find_element_by_xpath(xpath).click()
                     time.sleep(1)
-                    # print('已定位到元素')
-                    # print(xpath)
                     break
                 except:
                     print("还未定位到元素!")
