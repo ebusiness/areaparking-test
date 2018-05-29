@@ -25,7 +25,7 @@ EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
 SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
-DB_NAME = 'areaparking'
+DB_NAME = 'test_areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
     POS_TEST_CASE_START_ROW = 5
@@ -181,7 +181,7 @@ def input_data(sheet, driver, output_path):
                     elif input_type == 'file':
                         element.send_keys(ROOT_PATH + value)
                     else:
-                        element.send_keys((Keys.CONTROL , 'a'))
+                        element.send_keys((Keys.CONTROL, 'a'))
                         element.send_keys(value)
                 elif element.tag_name == 'select':
                     data_select_id = element.get_attribute('data-select-id')
@@ -206,16 +206,25 @@ def input_data(sheet, driver, output_path):
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
             elif name and value:
-                iii = 10
-                while iii:
+                # while 1:
+                #     try:
+                #         element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
+                #         time.sleep(1)
+                #         break
+                #     except:
+                #         print("还未定位到元素!")
+                #         print(name)
+                while 1:
                     try:
                         element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                         time.sleep(1)
                         break
                     except:
-                        print("还未定位到元素!")
-                        print(xpath)
-                        iii -= 1
+                        element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
+                        name1 = element.get_attribute("name")
+                        print("name", name1)
+                        print("element", element)
+                        break
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
@@ -229,8 +238,10 @@ def input_data(sheet, driver, output_path):
                         time.sleep(1)
                     elif input_type == 'file':
                         element.send_keys(ROOT_PATH + value)
+                    elif value == "ENTER":
+                        element.send_keys(Keys.ENTER)
                     else:
-                        element.send_keys((Keys.CONTROL, 'a'))
+                        element.clear()
                         element.send_keys(value)
                 elif element.tag_name == 'select':
                     data_select_id = element.get_attribute('data-select-id')
@@ -250,32 +261,22 @@ def input_data(sheet, driver, output_path):
                             try:
                                 driver.find_element_by_xpath(xpath).click()
                                 time.sleep(1)
-                                # print('已定位到元素')
-                                # print(xpath)
                                 break
                             except:
                                 print("还未定位到元素!")
                                 print(xpath)
-                        # list_element = driver.find_element_by_xpath(xpath)
-                        # list_element.click()
                     else:
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
                 elif element.tag_name == 'textarea':
-                    element.send_keys((Keys.CONTROL, 'a'))
+                    element.clear()
                     element.send_keys(value)
         elif expect_kbn == "CLICK":
             xpath = sheet['B{}'.format(i)].value
             while 1:
                 try:
-                    all = driver.window_handles
-                    print(all)
-                    nowhandle = driver.current_window_handle
-                    print(nowhandle)
                     driver.find_element_by_xpath(xpath).click()
                     time.sleep(1)
-                    # print('已定位到元素')
-                    # print(xpath)
                     break
                 except:
                     print("还未定位到元素!")
@@ -340,8 +341,8 @@ def input_data(sheet, driver, output_path):
             alt.accept()
             time.sleep(1)
         elif expect_kbn == "HANDLE":
-            index = sheet['B{}'.format(i)].value
-            if index == 'close':
+            index = int(sheet['B{}'.format(i)].value)
+            if index == '-1':
                 driver.close()
             else:
                 all = driver.window_handles
@@ -368,6 +369,7 @@ def input_data(sheet, driver, output_path):
                 driver.close()
             if index == 1:
                 driver.switch_to_window(all[1])
+
 
 def input_tables(sheet):
     con = MySQLdb.connect(user=DB_USER, passwd=DB_PWD, db=DB_NAME, host=DB_HOST, charset='utf8')
@@ -493,7 +495,7 @@ def expect_table(sheet, table_name, sql, start_row, end_row, result_sheet):
             for c in range(column_count):
                 expect_cell = result_sheet.cell(row=expect_start_row + i, column=c + 2)
                 result_cell = result_sheet.cell(row=result_start_row + 2 + i, column=c + 2)
-                if expect_cell.value == "9999-12-31 23:59:59":
+                if expect_cell.value == "9999-12-31 23:59:59" or expect_cell.value == "doc":
                     result_cell.fill = GREEN_FILL
                 elif str(expect_cell.value) != str(result_cell.value):
                     result_cell.fill = RED_FILL
