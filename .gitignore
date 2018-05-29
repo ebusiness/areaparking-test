@@ -106,4 +106,5 @@ evidence/
 test_start.bat
 test_物件管理/待改test/
 test_物件管理/已完成/
+*.orig
 
