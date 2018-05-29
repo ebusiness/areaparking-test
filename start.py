@@ -342,24 +342,26 @@ def input_data(sheet, driver, output_path):
             time.sleep(1)
         elif expect_kbn == "HANDLE":
             index = int(sheet['B{}'.format(i)].value)
-            if index == 'close':
+            if index == -1:
                 driver.close()
             else:
                 all = driver.window_handles
                 driver.switch_to_window(all[index])
-                time.sleep(1)
+                time.sleep(3)
         elif expect_kbn == "CTRL":
             driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
             xpath = sheet['B{}'.format(i)].value
-            ActionChains(driver).key_down(Keys.CONTROL).perform()
             while 1:
                 try:
+                    all = driver.window_handles
+                    print(all.__len__())
+                    if all.__len__() > 1:
+                        break
+                    ActionChains(driver).key_down(Keys.CONTROL).perform()
+                    time.sleep(5)
                     driver.find_element_by_xpath(xpath).click()
-                    time.sleep(1)
-                    break
                 except:
-                    print("还未定位到元素!")
-                    print(xpath)
+                    print("还未定位到元素!", xpath)
             ActionChains(driver).key_up(Keys.CONTROL).perform()
         elif expect_kbn == "HANDLE2":
             all = driver.window_handles
