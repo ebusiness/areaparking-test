@@ -342,7 +342,7 @@ def input_data(sheet, driver, output_path):
             time.sleep(1)
         elif expect_kbn == "HANDLE":
             index = int(sheet['B{}'.format(i)].value)
-            if index == 'close':
+            if index == '-1':
                 driver.close()
             else:
                 all = driver.window_handles
