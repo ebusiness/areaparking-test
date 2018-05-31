@@ -358,7 +358,7 @@ def input_data(sheet, driver, output_path):
                     if all.__len__() > 1:
                         break
                     ActionChains(driver).key_down(Keys.CONTROL).perform()
-                    time.sleep(5)
+                    time.sleep(2)
                     driver.find_element_by_xpath(xpath).click()
                 except:
                     print("还未定位到元素!", xpath)
@@ -371,6 +371,12 @@ def input_data(sheet, driver, output_path):
                 driver.close()
             if index == 1:
                 driver.switch_to_window(all[1])
+        elif expect_kbn == "TAB":
+            ActionChains(driver).key_down(Keys.TAB).perform()
+            time.sleep(3)
+            ActionChains(driver).key_up(Keys.TAB).perform()
+
+
 
 
 def input_tables(sheet):
