@@ -348,8 +348,11 @@ def input_data(sheet, driver, output_path):
                 all = driver.window_handles
                 driver.switch_to_window(all[index])
                 time.sleep(3)
+        elif expect_kbn == "IFRAME ID":
+            id = sheet['B{}'.format(i)].value
+            driver.switch_to.frame(id)
+            # driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
         elif expect_kbn == "CTRL":
-            driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
             xpath = sheet['B{}'.format(i)].value
             while 1:
                 try:
