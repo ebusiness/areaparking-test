@@ -378,6 +378,15 @@ def input_data(sheet, driver, output_path):
             ActionChains(driver).key_down(Keys.TAB).perform()
             time.sleep(3)
             ActionChains(driver).key_up(Keys.TAB).perform()
+        elif expect_kbn == "PAGEUP":
+            ActionChains(driver).key_down(Keys.PAGE_UP).perform()
+            time.sleep(3)
+            ActionChains(driver).key_up(Keys.PAGE_UP).perform()
+        elif expect_kbn == "PAGEDOWN":
+            ActionChains(driver).key_down(Keys.PAGE_DOWN).perform()
+            time.sleep(3)
+            ActionChains(driver).key_up(Keys.PAGE_DOWN).perform()
+
 
 
 
