@@ -25,7 +25,7 @@ EVIDENCE_ROOT_PATH = os.path.join(ROOT_PATH, 'evidence')
 SCREEN_SHOT_NAME = 'screen_shot'
 if not os.path.exists(EVIDENCE_ROOT_PATH):
     os.mkdir(EVIDENCE_ROOT_PATH)
-DB_NAME = 'test_areaparking'
+DB_NAME = 'areaparking'
 if sys.platform == 'linux':
     HOST_NAME = 'http://111.89.163.244:12345/'
     POS_TEST_CASE_START_ROW = 5
@@ -342,24 +342,29 @@ def input_data(sheet, driver, output_path):
             time.sleep(1)
         elif expect_kbn == "HANDLE":
             index = int(sheet['B{}'.format(i)].value)
-            if index == '-1':
+            if index == -1:
                 driver.close()
             else:
                 all = driver.window_handles
                 driver.switch_to_window(all[index])
-                time.sleep(1)
+                time.sleep(3)
+        elif expect_kbn == "IFRAME ID":
+            id = sheet['B{}'.format(i)].value
+            driver.switch_to.frame(id)
+            # driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
         elif expect_kbn == "CTRL":
-            driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
             xpath = sheet['B{}'.format(i)].value
-            ActionChains(driver).key_down(Keys.CONTROL).perform()
             while 1:
                 try:
+                    all = driver.window_handles
+                    print(all.__len__())
+                    if all.__len__() > 1:
+                        break
+                    ActionChains(driver).key_down(Keys.CONTROL).perform()
+                    time.sleep(2)
                     driver.find_element_by_xpath(xpath).click()
-                    time.sleep(1)
-                    break
                 except:
-                    print("还未定位到元素!")
-                    print(xpath)
+                    print("还未定位到元素!", xpath)
             ActionChains(driver).key_up(Keys.CONTROL).perform()
         elif expect_kbn == "HANDLE2":
             all = driver.window_handles
@@ -369,6 +374,21 @@ def input_data(sheet, driver, output_path):
                 driver.close()
             if index == 1:
                 driver.switch_to_window(all[1])
+        elif expect_kbn == "TAB":
+            ActionChains(driver).key_down(Keys.TAB).perform()
+            time.sleep(3)
+            ActionChains(driver).key_up(Keys.TAB).perform()
+        elif expect_kbn == "PAGEUP":
+            ActionChains(driver).key_down(Keys.PAGE_UP).perform()
+            time.sleep(3)
+            ActionChains(driver).key_up(Keys.PAGE_UP).perform()
+        elif expect_kbn == "PAGEDOWN":
+            ActionChains(driver).key_down(Keys.PAGE_DOWN).perform()
+            time.sleep(3)
+            ActionChains(driver).key_up(Keys.PAGE_DOWN).perform()
+
+
+
 
 
 def input_tables(sheet):
