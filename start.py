@@ -386,6 +386,12 @@ def input_data(sheet, driver, output_path):
             ActionChains(driver).key_down(Keys.PAGE_DOWN).perform()
             time.sleep(3)
             ActionChains(driver).key_up(Keys.PAGE_DOWN).perform()
+        elif expect_kbn == "HOME":
+            ActionChains(driver).key_down(Keys.HOME).perform()
+            ActionChains(driver).key_up(Keys.HOME).perform()
+        elif expect_kbn == "END":
+            ActionChains(driver).key_down(Keys.END).perform()
+            ActionChains(driver).key_up(Keys.END).perform()
 
 
 
