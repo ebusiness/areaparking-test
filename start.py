@@ -337,9 +337,12 @@ def input_data(sheet, driver, output_path):
                         select_element = Select(element)
                         select_element.select_by_visible_text(value)
         elif expect_kbn == "ALERT":
-            alt = driver.switch_to_alert()
-            alt.accept()
-            time.sleep(1)
+            try:
+                alt = driver.switch_to_alert()
+                alt.accept()
+                time.sleep(1)
+            except:
+                pass
         elif expect_kbn == "HANDLE":
             index = int(sheet['B{}'.format(i)].value)
             if index == -1:
@@ -386,6 +389,12 @@ def input_data(sheet, driver, output_path):
             ActionChains(driver).key_down(Keys.PAGE_DOWN).perform()
             time.sleep(3)
             ActionChains(driver).key_up(Keys.PAGE_DOWN).perform()
+        elif expect_kbn == "HOME":
+            ActionChains(driver).key_down(Keys.HOME).perform()
+            ActionChains(driver).key_up(Keys.HOME).perform()
+        elif expect_kbn == "END":
+            ActionChains(driver).key_down(Keys.END).perform()
+            ActionChains(driver).key_up(Keys.END).perform()
 
 
 
