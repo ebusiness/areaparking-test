@@ -216,14 +216,17 @@ def input_data(sheet, driver, output_path):
                 #         print(name)
                 while 1:
                     try:
-                        element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                         time.sleep(1)
-                        break
+                        element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
+                        # time.sleep(1)
+                        # break
                     except:
                         element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
                         name1 = element.get_attribute("name")
                         print("name", name1)
                         print("element", element)
+                        # break
+                    if element:
                         break
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
