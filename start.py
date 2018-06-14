@@ -398,6 +398,9 @@ def input_data(sheet, driver, output_path):
         elif expect_kbn == "END":
             ActionChains(driver).key_down(Keys.END).perform()
             ActionChains(driver).key_up(Keys.END).perform()
+        elif expect_kbn == "ENTER":
+            ActionChains(driver).key_down(Keys.ENTER).perform()
+            ActionChains(driver).key_up(Keys.ENTER).perform()
 
 
 
