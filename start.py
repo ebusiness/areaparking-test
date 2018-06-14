@@ -241,8 +241,6 @@ def input_data(sheet, driver, output_path):
                         time.sleep(1)
                     elif input_type == 'file':
                         element.send_keys(ROOT_PATH + value)
-                    elif value == "ENTER":
-                        element.send_keys(Keys.ENTER)
                     else:
                         element.clear()
                         element.send_keys(value)
