@@ -241,8 +241,6 @@ def input_data(sheet, driver, output_path):
                         time.sleep(1)
                     elif input_type == 'file':
                         element.send_keys(ROOT_PATH + value)
-                    elif value == "ENTER":
-                        element.send_keys(Keys.ENTER)
                     else:
                         element.clear()
                         element.send_keys(value)
@@ -398,6 +396,9 @@ def input_data(sheet, driver, output_path):
         elif expect_kbn == "END":
             ActionChains(driver).key_down(Keys.END).perform()
             ActionChains(driver).key_up(Keys.END).perform()
+        elif expect_kbn == "ENTER":
+            ActionChains(driver).key_down(Keys.ENTER).perform()
+            ActionChains(driver).key_up(Keys.ENTER).perform()
 
 
 
