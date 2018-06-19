@@ -216,14 +216,17 @@ def input_data(sheet, driver, output_path):
                 #         print(name)
                 while 1:
                     try:
-                        element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
                         time.sleep(1)
-                        break
+                        element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
+                        # time.sleep(1)
+                        # break
                     except:
                         element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
                         name1 = element.get_attribute("name")
                         print("name", name1)
                         print("element", element)
+                        # break
+                    if element:
                         break
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
@@ -238,8 +241,6 @@ def input_data(sheet, driver, output_path):
                         time.sleep(1)
                     elif input_type == 'file':
                         element.send_keys(ROOT_PATH + value)
-                    elif value == "ENTER":
-                        element.send_keys(Keys.ENTER)
                     else:
                         element.clear()
                         element.send_keys(value)
@@ -383,11 +384,11 @@ def input_data(sheet, driver, output_path):
             ActionChains(driver).key_up(Keys.TAB).perform()
         elif expect_kbn == "PAGEUP":
             ActionChains(driver).key_down(Keys.PAGE_UP).perform()
-            time.sleep(3)
+            # time.sleep(3)
             ActionChains(driver).key_up(Keys.PAGE_UP).perform()
         elif expect_kbn == "PAGEDOWN":
             ActionChains(driver).key_down(Keys.PAGE_DOWN).perform()
-            time.sleep(3)
+            # time.sleep(3)
             ActionChains(driver).key_up(Keys.PAGE_DOWN).perform()
         elif expect_kbn == "HOME":
             ActionChains(driver).key_down(Keys.HOME).perform()
@@ -395,6 +396,9 @@ def input_data(sheet, driver, output_path):
         elif expect_kbn == "END":
             ActionChains(driver).key_down(Keys.END).perform()
             ActionChains(driver).key_up(Keys.END).perform()
+        elif expect_kbn == "ENTER":
+            ActionChains(driver).key_down(Keys.ENTER).perform()
+            ActionChains(driver).key_up(Keys.ENTER).perform()
 
 
 
