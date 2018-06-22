@@ -206,28 +206,70 @@ def input_data(sheet, driver, output_path):
                     element.send_keys((Keys.CONTROL, 'a'))
                     element.send_keys(value)
             elif name and value:
-                # while 1:
-                #     try:
-                #         element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
-                #         time.sleep(1)
-                #         break
-                #     except:
-                #         print("还未定位到元素!")
-                #         print(name)
                 while 1:
                     try:
-                        time.sleep(1)
                         element = driver.find_element_by_xpath('//*[@id="{}"]'.format(name))
-                        # time.sleep(1)
-                        # break
-                    except:
-                        element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
-                        name1 = element.get_attribute("name")
-                        print("name", name1)
-                        print("element", element)
-                        # break
-                    if element:
+                        time.sleep(1)
                         break
+                    except:
+                        print("还未定位到元素!")
+                        print(name)
+                if element.tag_name == 'input':
+                    input_type = element.get_attribute('type')
+                    if input_type == "checkbox":
+                        label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
+                        if value is True:
+                            if not element.is_selected():
+                                label.click()
+                        elif value is False:
+                            if element.is_selected():
+                                label.click()
+                        time.sleep(1)
+                    elif input_type == 'file':
+                        element.send_keys(ROOT_PATH + value)
+                    else:
+                        element.clear()
+                        element.send_keys(value)
+                elif element.tag_name == 'select':
+                    data_select_id = element.get_attribute('data-select-id')
+                    if data_select_id:
+                        select_option_id = 'select-options-{}'.format(data_select_id)
+                        # ドロップダウンリストを展開する
+                        driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                        time.sleep(1)
+                        try:
+                            driver.find_element_by_css_selector('[data-activates={}]'.format(select_option_id)).click()
+                            time.sleep(1)
+                        except:
+                                pass
+                        # 指定項目を選択する。
+                        xpath = '//ul[@id="{}"]//span[contains(text(), "{}")]'.format(select_option_id, value)
+                        while 1:
+                            try:
+                                driver.find_element_by_xpath(xpath).click()
+                                time.sleep(1)
+                                break
+                            except:
+                                print("还未定位到元素!")
+                                print(xpath)
+                    else:
+                        select_element = Select(element)
+                        select_element.select_by_visible_text(value)
+                elif element.tag_name == 'textarea':
+                    element.clear()
+                    element.send_keys(value)
+        elif expect_kbn == "FIELD NAME":
+            name = sheet['B{}'.format(i)].value
+            value = sheet['C{}'.format(i)].value
+            if name and value:
+                while 1:
+                    try:
+                        element = driver.find_element_by_xpath('//*[@name="{}"]'.format(name))
+                        time.sleep(1)
+                        break
+                    except:
+                        print("还未定位到元素!")
+                        print(name)
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
