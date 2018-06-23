@@ -218,13 +218,23 @@ def input_data(sheet, driver, output_path):
                     input_type = element.get_attribute('type')
                     if input_type == "checkbox":
                         label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
-                        if value is True:
-                            if not element.is_selected():
+                        if value == 'TRUE':
+                            if not label.is_selected():
                                 label.click()
-                        elif value is False:
-                            if element.is_selected():
+                        elif value == 'FALSE':
+                            if label.is_selected():
                                 label.click()
                         time.sleep(1)
+                    elif input_type == 'radio':
+                        label = driver.find_element_by_xpath('//*[@for="{}"]'.format(name))
+                        if value == 'TRUE':
+                            if not label.is_selected():
+                                label.click()
+                        elif value == 'FALSE':
+                            if label.is_selected():
+                                label.click()
+                        time.sleep(1)
+
                     elif input_type == 'file':
                         element.send_keys(ROOT_PATH + value)
                     else:
