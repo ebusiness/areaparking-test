@@ -451,6 +451,9 @@ def input_data(sheet, driver, output_path):
         elif expect_kbn == "ENTER":
             ActionChains(driver).key_down(Keys.ENTER).perform()
             ActionChains(driver).key_up(Keys.ENTER).perform()
+        elif expect_kbn == "SLEEP":
+            index = sheet['B{}'.format(i)].value
+            time.sleep(int(index))
 
 
 
