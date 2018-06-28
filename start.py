@@ -264,7 +264,7 @@ def input_data(sheet, driver, output_path):
                                 print(xpath)
                     else:
                         select_element = Select(element)
-                        select_element.select_by_visible_text(value)
+                        select_element.select_by_visible_text(str(value))
                 elif element.tag_name == 'textarea':
                     element.clear()
                     element.send_keys(value)
@@ -454,6 +454,9 @@ def input_data(sheet, driver, output_path):
         elif expect_kbn == "ENTER":
             ActionChains(driver).key_down(Keys.ENTER).perform()
             ActionChains(driver).key_up(Keys.ENTER).perform()
+        elif expect_kbn == "SLEEP":
+            index = sheet['B{}'.format(i)].value
+            time.sleep(int(index))
 
 
 
