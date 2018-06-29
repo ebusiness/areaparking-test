@@ -260,7 +260,7 @@ def input_data(sheet, driver, output_path):
                                 time.sleep(1)
                                 break
                             except:
-                                print("还未定位到元素!")
+                                print("还未定位到元素 select !")
                                 print(xpath)
                     else:
                         select_element = Select(element)
@@ -278,7 +278,7 @@ def input_data(sheet, driver, output_path):
                         time.sleep(1)
                         break
                     except:
-                        print("还未定位到元素!")
+                        print("还未定位到元素 FIELD NAME !")
                         print(name)
                 if element.tag_name == 'input':
                     input_type = element.get_attribute('type')
@@ -316,7 +316,7 @@ def input_data(sheet, driver, output_path):
                                 time.sleep(1)
                                 break
                             except:
-                                print("还未定位到元素!")
+                                print("还未定位到元素 select 2!")
                                 print(xpath)
                     else:
                         select_element = Select(element)
@@ -332,7 +332,7 @@ def input_data(sheet, driver, output_path):
                     time.sleep(1)
                     break
                 except:
-                    print("还未定位到元素!")
+                    print("还未定位到元素 CLICK!")
                     print(xpath)
         elif expect_kbn == "SHOT":
             # ハードコピーを取る
@@ -420,7 +420,7 @@ def input_data(sheet, driver, output_path):
                     time.sleep(2)
                     driver.find_element_by_xpath(xpath).click()
                 except:
-                    print("还未定位到元素!", xpath)
+                    print("还未定位到元素 CTRL!", xpath)
             ActionChains(driver).key_up(Keys.CONTROL).perform()
         elif expect_kbn == "HANDLE2":
             all = driver.window_handles
@@ -430,6 +430,9 @@ def input_data(sheet, driver, output_path):
                 driver.close()
             if index == 1:
                 driver.switch_to_window(all[1])
+        elif expect_kbn == "SLEEP":
+            slp = sheet['B{}'.format(i)].value
+            time.sleep(slp)
         elif expect_kbn == "TAB":
             ActionChains(driver).key_down(Keys.TAB).perform()
             time.sleep(3)
