@@ -430,9 +430,6 @@ def input_data(sheet, driver, output_path):
                 driver.close()
             if index == 1:
                 driver.switch_to_window(all[1])
-        elif expect_kbn == "SLEEP":
-            slp = sheet['B{}'.format(i)].value
-            time.sleep(slp)
         elif expect_kbn == "TAB":
             ActionChains(driver).key_down(Keys.TAB).perform()
             time.sleep(3)
