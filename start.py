@@ -68,7 +68,7 @@ def main():
         for path in collect_test_files():
             out_file = set_evidence_folder(path)
             test_xlsx_file(out_file, driver)
-        # driver.close()
+        driver.close()
     except Exception as ex:
         print(ex)
         # driver.close()
@@ -436,17 +436,19 @@ def input_data(sheet, driver, output_path):
             ActionChains(driver).key_up(Keys.TAB).perform()
         elif expect_kbn == "PAGEUP":
             ActionChains(driver).key_down(Keys.PAGE_UP).perform()
-            # time.sleep(3)
+            time.sleep(1)
             ActionChains(driver).key_up(Keys.PAGE_UP).perform()
         elif expect_kbn == "PAGEDOWN":
             ActionChains(driver).key_down(Keys.PAGE_DOWN).perform()
-            # time.sleep(3)
+            time.sleep(1)
             ActionChains(driver).key_up(Keys.PAGE_DOWN).perform()
         elif expect_kbn == "HOME":
             ActionChains(driver).key_down(Keys.HOME).perform()
+            time.sleep(1)
             ActionChains(driver).key_up(Keys.HOME).perform()
         elif expect_kbn == "END":
             ActionChains(driver).key_down(Keys.END).perform()
+            time.sleep(1)
             ActionChains(driver).key_up(Keys.END).perform()
         elif expect_kbn == "ENTER":
             ActionChains(driver).key_down(Keys.ENTER).perform()
